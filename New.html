@@ -1,0 +1,1919 @@
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>HF Multimodal AI Studio</title>
+
+  <!-- Tailwind CSS -->
+
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <!-- Lucide Icons -->
+
+  <script src="https://unpkg.com/lucide@latest"></script>
+
+  <script>
+    tailwind.config = {
+      darkMode: "class",
+      theme: {
+        extend: {
+          animation: {
+            "fade-in": "fadeIn .25s ease-out",
+            "slide-up": "slideUp .25s ease-out"
+          },
+          keyframes: {
+            fadeIn: {
+              "0%": { opacity: "0" },
+              "100%": { opacity: "1" }
+            },
+            slideUp: {
+              "0%": { opacity: "0", transform: "translateY(8px)" },
+              "100%": { opacity: "1", transform: "translateY(0)" }
+            }
+          }
+        }
+      }
+    };
+  </script>
+
+  <style>
+    * {
+      scrollbar-width: thin;
+      scrollbar-color: #475569 #0f172a;
+    }
+
+    body {
+      min-height: 100vh;
+      background:
+        radial-gradient(circle at top left, rgba(59,130,246,.10), transparent 30%),
+        radial-gradient(circle at bottom right, rgba(139,92,246,.08), transparent 30%),
+        #020617;
+    }
+
+    .glass {
+      background: rgba(15, 23, 42, .78);
+      backdrop-filter: blur(14px);
+      -webkit-backdrop-filter: blur(14px);
+      border: 1px solid rgba(71, 85, 105, .45);
+    }
+
+    .drop-active {
+      border-color: #60a5fa !important;
+      background: rgba(30, 64, 175, .18) !important;
+    }
+
+    .tab-active {
+      background: #2563eb;
+      color: white;
+      box-shadow: 0 8px 25px rgba(37, 99, 235, .22);
+    }
+
+    textarea {
+      resize: vertical;
+    }
+
+    input[type="file"] {
+      display: none;
+    }
+
+    .loader {
+      width: 18px;
+      height: 18px;
+      border: 2px solid rgba(255,255,255,.25);
+      border-top-color: white;
+      border-radius: 50%;
+      animation: spin .7s linear infinite;
+    }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+  </style>
+
+</head>
+
+<body class="dark text-slate-100">
+
+  <!-- =========================================================
+       NAVBAR
+  ========================================================== -->
+
+  <nav class="sticky top-0 z-40 border-b border-slate-800 bg-slate-950/90 backdrop-blur-xl">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 py-3">
+      <div class="flex items-center justify-between gap-4">
+
+```
+    <div class="flex items-center gap-3">
+      <div class="w-10 h-10 rounded-xl bg-blue-600 flex items-center justify-center shadow-lg shadow-blue-900/30">
+        <i data-lucide="sparkles" class="w-5 h-5"></i>
+      </div>
+
+      <div>
+        <h1 class="font-bold text-lg sm:text-xl tracking-tight">
+          HF Multimodal AI Studio
+        </h1>
+        <p class="text-xs text-slate-400 hidden sm:block">
+          TTS • Transcription • OCR
+        </p>
+      </div>
+    </div>
+
+    <button
+      id="apiSettingsBtn"
+      class="flex items-center gap-2 px-3 sm:px-4 py-2 rounded-xl border border-slate-700 bg-slate-900 hover:bg-slate-800 transition"
+    >
+      <i data-lucide="key-round" class="w-4 h-4"></i>
+      <span class="hidden sm:inline">API Key</span>
+      <span id="keyStatusDot" class="w-2 h-2 rounded-full bg-red-500"></span>
+    </button>
+
+  </div>
+</div>
+```
+
+  </nav>
+
+  <!-- =========================================================
+       MAIN
+  ========================================================== -->
+
+  <main class="max-w-7xl mx-auto px-4 sm:px-6 py-6 sm:py-8">
+
+```
+<!-- Intro -->
+<section class="mb-6">
+  <div class="glass rounded-2xl p-5 sm:p-6">
+    <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-5">
+
+      <div>
+        <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-500/10 text-blue-300 border border-blue-500/20 text-xs font-medium mb-3">
+          <i data-lucide="zap" class="w-3.5 h-3.5"></i>
+          Hugging Face Inference
+        </div>
+
+        <h2 class="text-2xl sm:text-3xl font-bold">
+          Your lightweight AI workspace
+        </h2>
+
+        <p class="mt-2 text-slate-400 max-w-2xl text-sm sm:text-base">
+          Convert text into speech, transcribe audio/video, and extract
+          text from images directly from your browser.
+        </p>
+      </div>
+
+      <div class="flex flex-wrap gap-2 text-xs">
+        <span class="px-3 py-2 rounded-lg bg-slate-800 text-slate-300">
+          No Backend
+        </span>
+        <span class="px-3 py-2 rounded-lg bg-slate-800 text-slate-300">
+          Browser Based
+        </span>
+        <span class="px-3 py-2 rounded-lg bg-slate-800 text-slate-300">
+          Local Token
+        </span>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- =======================================================
+     TABS
+======================================================== -->
+<div class="glass rounded-2xl p-2 mb-6">
+  <div class="grid grid-cols-1 sm:grid-cols-3 gap-2">
+
+    <button
+      class="tab-btn tab-active rounded-xl px-4 py-3 text-sm font-semibold transition flex items-center justify-center gap-2"
+      data-tab="tts"
+    >
+      <i data-lucide="volume-2" class="w-4 h-4"></i>
+      Text-to-Voice
+    </button>
+
+    <button
+      class="tab-btn rounded-xl px-4 py-3 text-sm font-semibold text-slate-400 hover:bg-slate-800 transition flex items-center justify-center gap-2"
+      data-tab="transcriber"
+    >
+      <i data-lucide="audio-lines" class="w-4 h-4"></i>
+      Audio / Video
+    </button>
+
+    <button
+      class="tab-btn rounded-xl px-4 py-3 text-sm font-semibold text-slate-400 hover:bg-slate-800 transition flex items-center justify-center gap-2"
+      data-tab="ocr"
+    >
+      <i data-lucide="scan-text" class="w-4 h-4"></i>
+      Image OCR
+    </button>
+
+  </div>
+</div>
+
+<!-- =======================================================
+     TTS TAB
+======================================================== -->
+<section id="tab-tts" class="tab-content animate-fade-in">
+
+  <div class="grid lg:grid-cols-2 gap-6">
+
+    <!-- Input -->
+    <div class="glass rounded-2xl p-5">
+
+      <div class="flex items-start justify-between gap-3 mb-4">
+        <div>
+          <h3 class="font-bold text-lg">Text-to-Voice</h3>
+          <p class="text-sm text-slate-400 mt-1">
+            Turn written text into downloadable speech.
+          </p>
+        </div>
+
+        <div class="p-2 rounded-lg bg-blue-500/10 text-blue-400">
+          <i data-lucide="mic-2" class="w-5 h-5"></i>
+        </div>
+      </div>
+
+      <label class="block text-sm font-medium text-slate-300 mb-2">
+        Enter text
+      </label>
+
+      <textarea
+        id="ttsText"
+        rows="10"
+        maxlength="5000"
+        placeholder="Type something you want to hear..."
+        class="w-full rounded-xl border border-slate-700 bg-slate-950/80 p-4 text-slate-100 placeholder:text-slate-600 outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 transition"
+      ></textarea>
+
+      <div class="flex justify-between mt-2 text-xs text-slate-500">
+        <span>English TTS model</span>
+        <span id="ttsCounter">0 / 5000</span>
+      </div>
+
+      <div class="flex flex-col sm:flex-row gap-3 mt-5">
+
+        <button
+          id="simplifyBtn"
+          class="flex-1 flex items-center justify-center gap-2 px-4 py-3 rounded-xl border border-purple-500/30 bg-purple-500/10 text-purple-300 hover:bg-purple-500/20 transition font-semibold"
+        >
+          <i data-lucide="wand-sparkles" class="w-4 h-4"></i>
+          Make Kid-Friendly
+        </button>
+
+        <button
+          id="generateTtsBtn"
+          class="flex-1 flex items-center justify-center gap-2 px-4 py-3 rounded-xl bg-blue-600 hover:bg-blue-500 transition font-semibold shadow-lg shadow-blue-900/20"
+        >
+          <i data-lucide="play" class="w-4 h-4"></i>
+          Generate Voice
+        </button>
+
+      </div>
+    </div>
+
+    <!-- Output -->
+    <div class="glass rounded-2xl p-5">
+
+      <div class="flex items-start justify-between gap-3 mb-5">
+        <div>
+          <h3 class="font-bold text-lg">Audio Preview</h3>
+          <p class="text-sm text-slate-400 mt-1">
+            Listen and download the generated audio.
+          </p>
+        </div>
+
+        <div class="p-2 rounded-lg bg-emerald-500/10 text-emerald-400">
+          <i data-lucide="headphones" class="w-5 h-5"></i>
+        </div>
+      </div>
+
+      <div
+        id="ttsEmpty"
+        class="min-h-[280px] rounded-xl border border-dashed border-slate-700 flex flex-col items-center justify-center text-center p-6"
+      >
+        <div class="w-14 h-14 rounded-full bg-slate-800 flex items-center justify-center mb-4">
+          <i data-lucide="audio-waveform" class="w-7 h-7 text-slate-500"></i>
+        </div>
+        <p class="font-medium text-slate-300">No audio generated yet</p>
+        <p class="text-sm text-slate-500 mt-1">
+          Your generated audio will appear here.
+        </p>
+      </div>
+
+      <div id="ttsResult" class="hidden">
+
+        <div class="rounded-xl bg-slate-950 border border-slate-800 p-4">
+          <audio id="audioPlayer" controls class="w-full"></audio>
+        </div>
+
+        <button
+          id="downloadAudioBtn"
+          class="w-full mt-4 flex items-center justify-center gap-2 px-4 py-3 rounded-xl bg-emerald-600 hover:bg-emerald-500 transition font-semibold"
+        >
+          <i data-lucide="download" class="w-4 h-4"></i>
+          Download Audio
+        </button>
+
+        <p class="text-xs text-slate-500 mt-3 text-center">
+          Hugging Face may return WAV/other audio formats depending on the model.
+        </p>
+
+      </div>
+    </div>
+
+  </div>
+
+  <!-- TTS Model Info -->
+  <div class="glass rounded-2xl p-5 mt-6">
+    <div class="flex gap-3">
+      <i data-lucide="info" class="w-5 h-5 text-blue-400 shrink-0"></i>
+      <div>
+        <h4 class="font-semibold">TTS Model</h4>
+        <p class="text-sm text-slate-400 mt-1">
+          Using
+          <code class="text-blue-300">facebook/mms-tts-eng</code>.
+          You can change the model in the JavaScript configuration.
+        </p>
+      </div>
+    </div>
+  </div>
+
+</section>
+
+<!-- =======================================================
+     TRANSCRIBER TAB
+======================================================== -->
+<section id="tab-transcriber" class="tab-content hidden animate-fade-in">
+
+  <div class="grid lg:grid-cols-2 gap-6">
+
+    <!-- Upload -->
+    <div class="glass rounded-2xl p-5">
+
+      <div class="flex items-start justify-between mb-5">
+        <div>
+          <h3 class="font-bold text-lg">Audio / Video Transcriber</h3>
+          <p class="text-sm text-slate-400 mt-1">
+            Upload MP3, WAV, MP4 and compatible media.
+          </p>
+        </div>
+
+        <div class="p-2 rounded-lg bg-orange-500/10 text-orange-400">
+          <i data-lucide="audio-lines" class="w-5 h-5"></i>
+        </div>
+      </div>
+
+      <div
+        id="audioDropzone"
+        class="dropzone rounded-2xl border-2 border-dashed border-slate-700 bg-slate-950/40 p-8 text-center cursor-pointer hover:border-blue-500/60 hover:bg-slate-900 transition"
+      >
+        <input
+          type="file"
+          id="audioFile"
+          accept="audio/*,video/mp4,video/webm,video/mpeg,.mp3,.wav,.m4a,.mp4"
+        />
+
+        <div class="w-16 h-16 mx-auto rounded-2xl bg-slate-800 flex items-center justify-center mb-4">
+          <i data-lucide="upload-cloud" class="w-8 h-8 text-slate-400"></i>
+        </div>
+
+        <p class="font-semibold">
+          Drop audio/video here
+        </p>
+
+        <p class="text-sm text-slate-500 mt-2">
+          or click to browse
+        </p>
+
+        <p class="text-xs text-slate-600 mt-3">
+          MP3 • WAV • M4A • MP4 • WebM
+        </p>
+      </div>
+
+      <!-- File Preview -->
+      <div id="audioPreviewContainer" class="hidden mt-5">
+
+        <div class="rounded-xl border border-slate-700 bg-slate-950 p-4">
+
+          <div class="flex items-center gap-3">
+            <div class="w-11 h-11 rounded-lg bg-blue-500/10 text-blue-400 flex items-center justify-center">
+              <i id="audioFileIcon" data-lucide="file-audio" class="w-5 h-5"></i>
+            </div>
+
+            <div class="min-w-0 flex-1">
+              <p id="audioFileName" class="font-medium truncate"></p>
+              <p id="audioFileSize" class="text-xs text-slate-500"></p>
+            </div>
+
+            <button
+              id="removeAudioBtn"
+              class="p-2 rounded-lg hover:bg-slate-800 text-slate-400 hover:text-red-400"
+              title="Remove file"
+            >
+              <i data-lucide="x" class="w-4 h-4"></i>
+            </button>
+          </div>
+
+          <audio
+            id="uploadedAudioPreview"
+            controls
+            class="w-full mt-4 hidden"
+          ></audio>
+
+          <video
+            id="uploadedVideoPreview"
+            controls
+            class="w-full mt-4 rounded-lg hidden max-h-64"
+          ></video>
+
+        </div>
+
+        <button
+          id="transcribeBtn"
+          class="w-full mt-4 flex items-center justify-center gap-2 px-4 py-3 rounded-xl bg-blue-600 hover:bg-blue-500 transition font-semibold"
+        >
+          <i data-lucide="file-audio" class="w-4 h-4"></i>
+          Transcribe Media
+        </button>
+
+      </div>
+
+    </div>
+
+    <!-- Transcript -->
+    <div class="glass rounded-2xl p-5">
+
+      <div class="flex items-start justify-between gap-3 mb-5">
+        <div>
+          <h3 class="font-bold text-lg">Transcription</h3>
+          <p class="text-sm text-slate-400 mt-1">
+            Your recognized speech will appear below.
+          </p>
+        </div>
+
+        <button
+          id="copyTranscriptBtn"
+          class="hidden flex items-center gap-2 px-3 py-2 rounded-lg bg-slate-800 hover:bg-slate-700 text-sm"
+        >
+          <i data-lucide="copy" class="w-4 h-4"></i>
+          Copy
+        </button>
+      </div>
+
+      <textarea
+        id="transcriptOutput"
+        rows="15"
+        readonly
+        placeholder="Transcribed text will appear here..."
+        class="w-full rounded-xl border border-slate-700 bg-slate-950/70 p-4 text-slate-200 placeholder:text-slate-600 outline-none focus:border-blue-500"
+      ></textarea>
+
+      <div class="mt-3 flex justify-between text-xs text-slate-500">
+        <span>Whisper</span>
+        <span id="transcriptCounter">0 characters</span>
+      </div>
+
+    </div>
+
+  </div>
+
+</section>
+
+<!-- =======================================================
+     OCR TAB
+======================================================== -->
+<section id="tab-ocr" class="tab-content hidden animate-fade-in">
+
+  <div class="grid lg:grid-cols-2 gap-6">
+
+    <!-- Image Upload -->
+    <div class="glass rounded-2xl p-5">
+
+      <div class="flex items-start justify-between mb-5">
+        <div>
+          <h3 class="font-bold text-lg">Image OCR</h3>
+          <p class="text-sm text-slate-400 mt-1">
+            Extract printed text from PNG and JPG images.
+          </p>
+        </div>
+
+        <div class="p-2 rounded-lg bg-pink-500/10 text-pink-400">
+          <i data-lucide="scan-text" class="w-5 h-5"></i>
+        </div>
+      </div>
+
+      <div
+        id="imageDropzone"
+        class="dropzone rounded-2xl border-2 border-dashed border-slate-700 bg-slate-950/40 p-8 text-center cursor-pointer hover:border-pink-500/60 hover:bg-slate-900 transition"
+      >
+        <input
+          type="file"
+          id="imageFile"
+          accept="image/png,image/jpeg,image/jpg,image/webp"
+        />
+
+        <div class="w-16 h-16 mx-auto rounded-2xl bg-slate-800 flex items-center justify-center mb-4">
+          <i data-lucide="image-up" class="w-8 h-8 text-slate-400"></i>
+        </div>
+
+        <p class="font-semibold">
+          Drop image here
+        </p>
+
+        <p class="text-sm text-slate-500 mt-2">
+          or click to browse
+        </p>
+
+        <p class="text-xs text-slate-600 mt-3">
+          PNG • JPG • JPEG • WEBP
+        </p>
+      </div>
+
+      <!-- Image Preview -->
+      <div id="imagePreviewContainer" class="hidden mt-5">
+
+        <div class="rounded-xl border border-slate-700 bg-slate-950 p-3">
+          <img
+            id="imagePreview"
+            class="w-full max-h-[400px] object-contain rounded-lg"
+            alt="Selected image preview"
+          />
+        </div>
+
+        <div class="flex gap-3 mt-4">
+
+          <button
+            id="removeImageBtn"
+            class="flex-1 flex items-center justify-center gap-2 px-4 py-3 rounded-xl border border-slate-700 bg-slate-900 hover:bg-slate-800 transition"
+          >
+            <i data-lucide="x" class="w-4 h-4"></i>
+            Remove
+          </button>
+
+          <button
+            id="ocrBtn"
+            class="flex-[2] flex items-center justify-center gap-2 px-4 py-3 rounded-xl bg-pink-600 hover:bg-pink-500 transition font-semibold"
+          >
+            <i data-lucide="scan-text" class="w-4 h-4"></i>
+            Extract Text
+          </button>
+
+        </div>
+      </div>
+
+    </div>
+
+    <!-- OCR Output -->
+    <div class="glass rounded-2xl p-5">
+
+      <div class="flex items-start justify-between gap-3 mb-5">
+
+        <div>
+          <h3 class="font-bold text-lg">Extracted Text</h3>
+          <p class="text-sm text-slate-400 mt-1">
+            OCR output from your image.
+          </p>
+        </div>
+
+        <button
+          id="copyOcrBtn"
+          class="hidden flex items-center gap-2 px-3 py-2 rounded-lg bg-slate-800 hover:bg-slate-700 text-sm"
+        >
+          <i data-lucide="copy" class="w-4 h-4"></i>
+          Copy
+        </button>
+
+      </div>
+
+      <textarea
+        id="ocrOutput"
+        rows="15"
+        readonly
+        placeholder="Extracted text will appear here..."
+        class="w-full rounded-xl border border-slate-700 bg-slate-950/70 p-4 text-slate-200 placeholder:text-slate-600 outline-none focus:border-pink-500"
+      ></textarea>
+
+      <div class="mt-3 flex justify-between text-xs text-slate-500">
+        <span>TrOCR</span>
+        <span id="ocrCounter">0 characters</span>
+      </div>
+
+    </div>
+
+  </div>
+
+</section>
+```
+
+  </main>
+
+  <!-- =========================================================
+       API SETTINGS MODAL
+  ========================================================== -->
+
+  <div
+    id="apiModal"
+    class="fixed inset-0 z-50 hidden items-center justify-center p-4 bg-black/70 backdrop-blur-sm"
+  >
+
+```
+<div class="glass w-full max-w-lg rounded-2xl shadow-2xl animate-slide-up">
+
+  <div class="flex items-center justify-between p-5 border-b border-slate-800">
+
+    <div class="flex items-center gap-3">
+      <div class="w-10 h-10 rounded-xl bg-blue-500/10 text-blue-400 flex items-center justify-center">
+        <i data-lucide="key-round" class="w-5 h-5"></i>
+      </div>
+
+      <div>
+        <h3 class="font-bold text-lg">API Settings</h3>
+        <p class="text-xs text-slate-500">
+          Hugging Face User Access Token
+        </p>
+      </div>
+    </div>
+
+    <button
+      id="closeModalBtn"
+      class="p-2 rounded-lg hover:bg-slate-800 text-slate-400"
+    >
+      <i data-lucide="x" class="w-5 h-5"></i>
+    </button>
+
+  </div>
+
+  <div class="p-5">
+
+    <label class="block text-sm font-medium text-slate-300 mb-2">
+      Hugging Face Token
+    </label>
+
+    <div class="relative">
+      <input
+        id="apiKeyInput"
+        type="password"
+        placeholder="hf_..."
+        autocomplete="off"
+        class="w-full rounded-xl border border-slate-700 bg-slate-950 p-3 pr-12 text-slate-100 placeholder:text-slate-600 outline-none focus:border-blue-500"
+      />
+
+      <button
+        id="toggleKeyVisibility"
+        class="absolute right-2 top-1/2 -translate-y-1/2 p-2 rounded-lg hover:bg-slate-800 text-slate-400"
+        type="button"
+      >
+        <i data-lucide="eye" class="w-4 h-4"></i>
+      </button>
+    </div>
+
+    <div class="mt-3 p-3 rounded-xl bg-amber-500/10 border border-amber-500/20">
+      <div class="flex gap-2">
+        <i data-lucide="shield-alert" class="w-4 h-4 text-amber-400 shrink-0 mt-0.5"></i>
+        <p class="text-xs text-amber-200/80">
+          Your token is stored only in this browser's localStorage.
+          Do not use this page on a shared/public computer with a sensitive token.
+        </p>
+      </div>
+    </div>
+
+    <div class="mt-4 text-xs text-slate-500">
+      Token should normally begin with <code class="text-blue-300">hf_</code>.
+    </div>
+
+    <div class="flex gap-3 mt-6">
+
+      <button
+        id="clearKeyBtn"
+        class="flex-1 px-4 py-3 rounded-xl border border-slate-700 hover:bg-slate-800 transition text-sm"
+      >
+        Clear
+      </button>
+
+      <button
+        id="saveKeyBtn"
+        class="flex-[2] flex items-center justify-center gap-2 px-4 py-3 rounded-xl bg-blue-600 hover:bg-blue-500 transition font-semibold"
+      >
+        <i data-lucide="save" class="w-4 h-4"></i>
+        Save API Key
+      </button>
+
+    </div>
+
+  </div>
+</div>
+```
+
+  </div>
+
+  <!-- =========================================================
+       TOAST
+  ========================================================== -->
+
+  <div
+    id="toastContainer"
+    class="fixed right-4 bottom-4 z-[60] space-y-3 w-[min(380px,calc(100vw-2rem))]"
+  ></div>
+
+  <!-- =========================================================
+       JAVASCRIPT
+  ========================================================== -->
+
+  <script>
+    /* =========================================================
+       CONFIGURATION
+    ========================================================== */
+
+    const CONFIG = {
+      /*
+       * Hugging Face Router Inference endpoint.
+       * This keeps the application backend-free.
+       */
+      HF_BASE_URL: "https://router.huggingface.co/hf-inference/models/",
+
+      TTS_MODEL: "facebook/mms-tts-eng",
+
+      /*
+       * Whisper model.
+       * If your account/model access differs, change this value.
+       */
+      STT_MODEL: "openai/whisper-small",
+
+      OCR_MODEL: "microsoft/trocr-base-printed"
+    };
+
+
+    /* =========================================================
+       GLOBAL STATE
+    ========================================================== */
+
+    let ttsAudioUrl = null;
+    let selectedAudioFile = null;
+    let selectedImageFile = null;
+
+
+    /* =========================================================
+       DOM HELPERS
+    ========================================================== */
+
+    const $ = (id) => document.getElementById(id);
+
+    function refreshIcons() {
+      if (window.lucide) {
+        lucide.createIcons();
+      }
+    }
+
+
+    /* =========================================================
+       TOAST / ALERTS
+    ========================================================== */
+
+    function showToast(message, type = "info", duration = 4500) {
+
+      const colors = {
+        success: "border-emerald-500/30 bg-emerald-500/10 text-emerald-200",
+        error: "border-red-500/30 bg-red-500/10 text-red-200",
+        warning: "border-amber-500/30 bg-amber-500/10 text-amber-200",
+        info: "border-blue-500/30 bg-blue-500/10 text-blue-200"
+      };
+
+      const icons = {
+        success: "check-circle-2",
+        error: "circle-alert",
+        warning: "triangle-alert",
+        info: "info"
+      };
+
+      const toast = document.createElement("div");
+
+      toast.className =
+        `glass rounded-xl border p-4 flex items-start gap-3 shadow-2xl animate-slide-up ${colors[type] || colors.info}`;
+
+      toast.innerHTML = `
+        <i data-lucide="${icons[type] || icons.info}" class="w-5 h-5 shrink-0 mt-0.5"></i>
+        <p class="text-sm leading-5 flex-1">${escapeHtml(message)}</p>
+        <button class="text-slate-400 hover:text-white">
+          <i data-lucide="x" class="w-4 h-4"></i>
+        </button>
+      `;
+
+      $("toastContainer").appendChild(toast);
+      refreshIcons();
+
+      const closeBtn = toast.querySelector("button");
+
+      closeBtn.onclick = () => toast.remove();
+
+      setTimeout(() => {
+        if (toast.isConnected) {
+          toast.remove();
+        }
+      }, duration);
+    }
+
+
+    function escapeHtml(value) {
+      return String(value)
+        .replaceAll("&", "&amp;")
+        .replaceAll("<", "&lt;")
+        .replaceAll(">", "&gt;")
+        .replaceAll('"', "&quot;")
+        .replaceAll("'", "&#039;");
+    }
+
+
+    /* =========================================================
+       API KEY
+    ========================================================== */
+
+    function getApiKey() {
+      return localStorage.getItem("hf_api_key") || "";
+    }
+
+
+    function updateKeyStatus() {
+
+      const key = getApiKey();
+
+      $("keyStatusDot").className =
+        "w-2 h-2 rounded-full " +
+        (key.startsWith("hf_")
+          ? "bg-emerald-400"
+          : "bg-red-500");
+
+    }
+
+
+    function requireApiKey() {
+
+      const key = getApiKey();
+
+      if (!key) {
+        showToast(
+          "Please add your Hugging Face API token first.",
+          "warning"
+        );
+
+        openApiModal();
+
+        return null;
+      }
+
+      if (!key.startsWith("hf_")) {
+        showToast(
+          "The token should start with hf_.",
+          "warning"
+        );
+
+        openApiModal();
+
+        return null;
+      }
+
+      return key;
+    }
+
+
+    function openApiModal() {
+
+      $("apiKeyInput").value = getApiKey();
+
+      $("apiModal").classList.remove("hidden");
+      $("apiModal").classList.add("flex");
+
+      setTimeout(() => $("apiKeyInput").focus(), 100);
+    }
+
+
+    function closeApiModal() {
+
+      $("apiModal").classList.add("hidden");
+      $("apiModal").classList.remove("flex");
+
+    }
+
+
+    $("apiSettingsBtn").addEventListener("click", openApiModal);
+
+    $("closeModalBtn").addEventListener("click", closeApiModal);
+
+    $("apiModal").addEventListener("click", (event) => {
+
+      if (event.target === $("apiModal")) {
+        closeApiModal();
+      }
+
+    });
+
+
+    $("saveKeyBtn").addEventListener("click", () => {
+
+      const key = $("apiKeyInput").value.trim();
+
+      if (!key) {
+        showToast("Please enter your Hugging Face token.", "warning");
+        return;
+      }
+
+      if (!key.startsWith("hf_")) {
+        showToast(
+          "Invalid token format. Hugging Face tokens normally start with hf_.",
+          "error"
+        );
+        return;
+      }
+
+      localStorage.setItem("hf_api_key", key);
+
+      updateKeyStatus();
+
+      showToast(
+        "API key saved locally in this browser.",
+        "success"
+      );
+
+      closeApiModal();
+
+    });
+
+
+    $("clearKeyBtn").addEventListener("click", () => {
+
+      localStorage.removeItem("hf_api_key");
+
+      $("apiKeyInput").value = "";
+
+      updateKeyStatus();
+
+      showToast(
+        "API key removed from localStorage.",
+        "success"
+      );
+
+    });
+
+
+    $("toggleKeyVisibility").addEventListener("click", () => {
+
+      const input = $("apiKeyInput");
+
+      input.type =
+        input.type === "password"
+          ? "text"
+          : "password";
+
+    });
+
+
+    /* =========================================================
+       GENERIC HF REQUEST
+    ========================================================== */
+
+    async function hfRequest(model, body, contentType) {
+
+      const token = requireApiKey();
+
+      if (!token) {
+        throw new Error("API token is required.");
+      }
+
+      const headers = {
+        "Authorization": `Bearer ${token}`
+      };
+
+      if (contentType) {
+        headers["Content-Type"] = contentType;
+      }
+
+      const response = await fetch(
+        CONFIG.HF_BASE_URL + encodeURIComponent(model),
+        {
+          method: "POST",
+          headers,
+          body
+        }
+      );
+
+      const contentTypeResponse =
+        response.headers.get("content-type") || "";
+
+      if (!response.ok) {
+
+        let errorText = "";
+
+        try {
+
+          if (contentTypeResponse.includes("application/json")) {
+
+            const data = await response.json();
+
+            errorText =
+              data.error ||
+              data.message ||
+              JSON.stringify(data);
+
+          } else {
+            errorText = await response.text();
+          }
+
+        } catch {
+          errorText = "";
+        }
+
+        if (response.status === 503) {
+
+          throw new Error(
+            "The AI model is currently loading. Hugging Face may need a few seconds before it is ready. Please try again shortly."
+          );
+
+        }
+
+        if (response.status === 401 || response.status === 403) {
+
+          throw new Error(
+            "Hugging Face rejected the token. Check that your hf_ token is correct and has permission to use the model."
+          );
+
+        }
+
+        if (response.status === 429) {
+
+          throw new Error(
+            "Hugging Face rate limit reached. Please wait a moment and try again."
+          );
+
+        }
+
+        throw new Error(
+          `Hugging Face API error (${response.status}). ${errorText || "Unknown error."}`
+        );
+      }
+
+      return {
+        response,
+        contentType: contentTypeResponse
+      };
+
+    }
+
+
+    /* =========================================================
+       BUTTON LOADING STATE
+    ========================================================== */
+
+    function setButtonLoading(button, loading, text) {
+
+      if (loading) {
+
+        button.dataset.originalHtml = button.innerHTML;
+
+        button.disabled = true;
+
+        button.innerHTML = `
+          <span class="loader"></span>
+          ${escapeHtml(text || "Processing...")}
+        `;
+
+      } else {
+
+        button.disabled = false;
+
+        if (button.dataset.originalHtml) {
+          button.innerHTML = button.dataset.originalHtml;
+        }
+
+        refreshIcons();
+
+      }
+
+    }
+
+
+    /* =========================================================
+       TABS
+    ========================================================== */
+
+    document.querySelectorAll(".tab-btn").forEach((button) => {
+
+      button.addEventListener("click", () => {
+
+        const tab = button.dataset.tab;
+
+        document.querySelectorAll(".tab-btn").forEach((btn) => {
+
+          btn.classList.remove("tab-active");
+
+          btn.classList.add(
+            "text-slate-400",
+            "hover:bg-slate-800"
+          );
+
+        });
+
+        button.classList.add("tab-active");
+
+        button.classList.remove(
+          "text-slate-400",
+          "hover:bg-slate-800"
+        );
+
+        document.querySelectorAll(".tab-content").forEach((section) => {
+          section.classList.add("hidden");
+        });
+
+        $("tab-" + tab).classList.remove("hidden");
+
+      });
+
+    });
+
+
+    /* =========================================================
+       TTS CHARACTER COUNTER
+    ========================================================== */
+
+    $("ttsText").addEventListener("input", () => {
+
+      $("ttsCounter").textContent =
+        `${$("ttsText").value.length} / 5000`;
+
+    });
+
+
+    /* =========================================================
+       CHILD-FRIENDLY SIMPLIFIER
+       ---------------------------------------------------------
+       This is intentionally local/browser-side so it does not
+       require an additional AI text-generation model.
+    ========================================================== */
+
+    $("simplifyBtn").addEventListener("click", () => {
+
+      const textarea = $("ttsText");
+
+      const original = textarea.value.trim();
+
+      if (!original) {
+
+        showToast(
+          "Enter some text first.",
+          "warning"
+        );
+
+        return;
+      }
+
+      let simplified = original;
+
+      const replacements = [
+        [/\bapproximately\b/gi, "about"],
+        [/\btherefore\b/gi, "so"],
+        [/\bhowever\b/gi, "but"],
+        [/\butilize\b/gi, "use"],
+        [/\bcommence\b/gi, "start"],
+        [/\badditional\b/gi, "extra"],
+        [/\bchildren\b/gi, "kids"],
+        [/\bassist\b/gi, "help"],
+        [/\bobtain\b/gi, "get"],
+        [/\bpurchase\b/gi, "buy"],
+        [/\bimmediately\b/gi, "right away"],
+        [/\bdemonstrate\b/gi, "show"],
+        [/\brequire\b/gi, "need"],
+        [/\bprior to\b/gi, "before"],
+        [/\bin order to\b/gi, "to"],
+        [/\bhas the ability to\b/gi, "can"]
+      ];
+
+      replacements.forEach(([pattern, replacement]) => {
+        simplified = simplified.replace(pattern, replacement);
+      });
+
+      simplified = simplified
+        .replace(/\s+/g, " ")
+        .replace(/\s+([,.!?])/g, "$1")
+        .trim();
+
+      /*
+       * Break very long sentences into easier chunks.
+       */
+      simplified = simplified
+        .replace(/;\s+/g, ". ")
+        .replace(/:\s+/g, ". ");
+
+      textarea.value = simplified;
+
+      $("ttsCounter").textContent =
+        `${simplified.length} / 5000`;
+
+      showToast(
+        "Text simplified into shorter, easier phrasing.",
+        "success"
+      );
+
+    });
+
+
+    /* =========================================================
+       TEXT-TO-SPEECH
+    ========================================================== */
+
+    $("generateTtsBtn").addEventListener("click", async () => {
+
+      const text = $("ttsText").value.trim();
+
+      if (!text) {
+
+        showToast(
+          "Please enter text before generating audio.",
+          "warning"
+        );
+
+        return;
+      }
+
+      const button = $("generateTtsBtn");
+
+      setButtonLoading(
+        button,
+        true,
+        "Generating..."
+      );
+
+      try {
+
+        const result = await hfRequest(
+          CONFIG.TTS_MODEL,
+          text,
+          "text/plain"
+        );
+
+        const blob = await result.response.blob();
+
+        if (!blob || blob.size === 0) {
+          throw new Error("The model returned an empty audio file.");
+        }
+
+        if (ttsAudioUrl) {
+          URL.revokeObjectURL(ttsAudioUrl);
+        }
+
+        ttsAudioUrl = URL.createObjectURL(blob);
+
+        $("audioPlayer").src = ttsAudioUrl;
+
+        $("ttsEmpty").classList.add("hidden");
+        $("ttsResult").classList.remove("hidden");
+
+        /*
+         * Keep original returned MIME type for download.
+         */
+        const extension =
+          blob.type.includes("mpeg") ||
+          blob.type.includes("mp3")
+            ? "mp3"
+            : "wav";
+
+        $("downloadAudioBtn").dataset.extension = extension;
+
+        showToast(
+          "Voice generated successfully.",
+          "success"
+        );
+
+      } catch (error) {
+
+        console.error(error);
+
+        showToast(
+          error.message || "Could not generate audio.",
+          "error",
+          6500
+        );
+
+      } finally {
+
+        setButtonLoading(button, false);
+
+      }
+
+    });
+
+
+    /* =========================================================
+       DOWNLOAD TTS AUDIO
+    ========================================================== */
+
+    $("downloadAudioBtn").addEventListener("click", () => {
+
+      if (!ttsAudioUrl) {
+
+        showToast(
+          "Generate audio first.",
+          "warning"
+        );
+
+        return;
+      }
+
+      const extension =
+        $("downloadAudioBtn").dataset.extension || "wav";
+
+      const anchor = document.createElement("a");
+
+      anchor.href = ttsAudioUrl;
+
+      anchor.download =
+        `hf-voice-${new Date().toISOString().replaceAll(":", "-")}.${extension}`;
+
+      document.body.appendChild(anchor);
+
+      anchor.click();
+
+      anchor.remove();
+
+    });
+
+
+    /* =========================================================
+       FILE SIZE
+    ========================================================== */
+
+    function formatBytes(bytes) {
+
+      if (!bytes) return "0 Bytes";
+
+      const units = [
+        "Bytes",
+        "KB",
+        "MB",
+        "GB"
+      ];
+
+      const index =
+        Math.floor(Math.log(bytes) / Math.log(1024));
+
+      return (
+        parseFloat(
+          (bytes / Math.pow(1024, index)).toFixed(2)
+        ) +
+        " " +
+        units[index]
+      );
+
+    }
+
+
+    /* =========================================================
+       AUDIO DROPZONE
+    ========================================================== */
+
+    const audioDropzone = $("audioDropzone");
+    const audioInput = $("audioFile");
+
+    audioDropzone.addEventListener("click", () => {
+      audioInput.click();
+    });
+
+    audioInput.addEventListener("change", () => {
+
+      if (audioInput.files[0]) {
+        handleAudioFile(audioInput.files[0]);
+      }
+
+    });
+
+
+    ["dragenter", "dragover"].forEach((eventName) => {
+
+      audioDropzone.addEventListener(eventName, (event) => {
+
+        event.preventDefault();
+
+        audioDropzone.classList.add("drop-active");
+
+      });
+
+    });
+
+
+    ["dragleave", "drop"].forEach((eventName) => {
+
+      audioDropzone.addEventListener(eventName, (event) => {
+
+        event.preventDefault();
+
+        audioDropzone.classList.remove("drop-active");
+
+      });
+
+    });
+
+
+    audioDropzone.addEventListener("drop", (event) => {
+
+      const file = event.dataTransfer.files[0];
+
+      if (file) {
+        handleAudioFile(file);
+      }
+
+    });
+
+
+    function handleAudioFile(file) {
+
+      if (!file.type.startsWith("audio/") &&
+          !file.type.startsWith("video/")) {
+
+        showToast(
+          "Please choose an audio or video file.",
+          "error"
+        );
+
+        return;
+      }
+
+      selectedAudioFile = file;
+
+      $("audioPreviewContainer").classList.remove("hidden");
+
+      $("audioFileName").textContent = file.name;
+
+      $("audioFileSize").textContent =
+        `${formatBytes(file.size)} • ${file.type || "Unknown type"}`;
+
+      const url = URL.createObjectURL(file);
+
+      const isVideo =
+        file.type.startsWith("video/") ||
+        /\.(mp4|webm|mpeg)$/i.test(file.name);
+
+      if (isVideo) {
+
+        $("uploadedVideoPreview").src = url;
+
+        $("uploadedVideoPreview").classList.remove("hidden");
+
+        $("uploadedAudioPreview").classList.add("hidden");
+
+      } else {
+
+        $("uploadedAudioPreview").src = url;
+
+        $("uploadedAudioPreview").classList.remove("hidden");
+
+        $("uploadedVideoPreview").classList.add("hidden");
+
+      }
+
+      refreshIcons();
+
+    }
+
+
+    $("removeAudioBtn").addEventListener("click", () => {
+
+      selectedAudioFile = null;
+
+      $("audioFile").value = "";
+
+      $("audioPreviewContainer").classList.add("hidden");
+
+      $("uploadedAudioPreview").pause();
+      $("uploadedVideoPreview").pause();
+
+      $("uploadedAudioPreview").removeAttribute("src");
+      $("uploadedVideoPreview").removeAttribute("src");
+
+    });
+
+
+    /* =========================================================
+       TRANSCRIPTION
+    ========================================================== */
+
+    $("transcribeBtn").addEventListener("click", async () => {
+
+      if (!selectedAudioFile) {
+
+        showToast(
+          "Please select an audio or video file first.",
+          "warning"
+        );
+
+        return;
+      }
+
+      const button = $("transcribeBtn");
+
+      setButtonLoading(
+        button,
+        true,
+        "Transcribing..."
+      );
+
+      try {
+
+        const result = await hfRequest(
+          CONFIG.STT_MODEL,
+          selectedAudioFile,
+          selectedAudioFile.type || "application/octet-stream"
+        );
+
+        const data = await result.response.json();
+
+        let text = "";
+
+        if (typeof data === "string") {
+          text = data;
+        } else if (data && typeof data.text === "string") {
+          text = data.text;
+        } else if (Array.isArray(data)) {
+          text = data
+            .map(item => item.text || "")
+            .join(" ")
+            .trim();
+        } else {
+          text = JSON.stringify(data, null, 2);
+        }
+
+        $("transcriptOutput").value = text;
+
+        $("transcriptCounter").textContent =
+          `${text.length} characters`;
+
+        $("copyTranscriptBtn").classList.toggle(
+          "hidden",
+          !text.trim()
+        );
+
+        showToast(
+          "Transcription completed.",
+          "success"
+        );
+
+      } catch (error) {
+
+        console.error(error);
+
+        showToast(
+          error.message || "Could not transcribe the media.",
+          "error",
+          7000
+        );
+
+      } finally {
+
+        setButtonLoading(button, false);
+
+      }
+
+    });
+
+
+    /* =========================================================
+       COPY TRANSCRIPT
+    ========================================================== */
+
+    $("copyTranscriptBtn").addEventListener("click", async () => {
+
+      const text = $("transcriptOutput").value;
+
+      if (!text.trim()) return;
+
+      try {
+
+        await navigator.clipboard.writeText(text);
+
+        showToast(
+          "Transcript copied to clipboard.",
+          "success"
+        );
+
+      } catch {
+
+        $("transcriptOutput").select();
+
+        document.execCommand("copy");
+
+        showToast(
+          "Transcript copied.",
+          "success"
+        );
+
+      }
+
+    });
+
+
+    $("transcriptOutput").addEventListener("input", () => {
+
+      $("transcriptCounter").textContent =
+        `${$("transcriptOutput").value.length} characters`;
+
+    });
+
+
+    /* =========================================================
+       IMAGE DROPZONE
+    ========================================================== */
+
+    const imageDropzone = $("imageDropzone");
+    const imageInput = $("imageFile");
+
+    imageDropzone.addEventListener("click", () => {
+      imageInput.click();
+    });
+
+    imageInput.addEventListener("change", () => {
+
+      if (imageInput.files[0]) {
+        handleImageFile(imageInput.files[0]);
+      }
+
+    });
+
+
+    ["dragenter", "dragover"].forEach((eventName) => {
+
+      imageDropzone.addEventListener(eventName, (event) => {
+
+        event.preventDefault();
+
+        imageDropzone.classList.add("drop-active");
+
+      });
+
+    });
+
+
+    ["dragleave", "drop"].forEach((eventName) => {
+
+      imageDropzone.addEventListener(eventName, (event) => {
+
+        event.preventDefault();
+
+        imageDropzone.classList.remove("drop-active");
+
+      });
+
+    });
+
+
+    imageDropzone.addEventListener("drop", (event) => {
+
+      const file = event.dataTransfer.files[0];
+
+      if (file) {
+        handleImageFile(file);
+      }
+
+    });
+
+
+    function handleImageFile(file) {
+
+      if (!file.type.startsWith("image/")) {
+
+        showToast(
+          "Please select a PNG, JPG, JPEG, or WEBP image.",
+          "error"
+        );
+
+        return;
+      }
+
+      selectedImageFile = file;
+
+      const url = URL.createObjectURL(file);
+
+      $("imagePreview").src = url;
+
+      $("imagePreviewContainer").classList.remove("hidden");
+
+    }
+
+
+    $("removeImageBtn").addEventListener("click", () => {
+
+      selectedImageFile = null;
+
+      $("imageFile").value = "";
+
+      $("imagePreview").removeAttribute("src");
+
+      $("imagePreviewContainer").classList.add("hidden");
+
+    });
+
+
+    /* =========================================================
+       OCR
+    ========================================================== */
+
+    $("ocrBtn").addEventListener("click", async () => {
+
+      if (!selectedImageFile) {
+
+        showToast(
+          "Please select an image first.",
+          "warning"
+        );
+
+        return;
+      }
+
+      const button = $("ocrBtn");
+
+      setButtonLoading(
+        button,
+        true,
+        "Extracting..."
+      );
+
+      try {
+
+        const result = await hfRequest(
+          CONFIG.OCR_MODEL,
+          selectedImageFile,
+          selectedImageFile.type || "application/octet-stream"
+        );
+
+        const data = await result.response.json();
+
+        let text = "";
+
+        /*
+         * TrOCR commonly returns:
+         * [
+         *   { generated_text: "..." }
+         * ]
+         *
+         * This parser also supports common alternative
+         * response structures.
+         */
+
+        if (Array.isArray(data)) {
+
+          text = data
+            .map(item => {
+              if (typeof item === "string") return item;
+              return (
+                item.generated_text ||
+                item.text ||
+                item.caption ||
+                ""
+              );
+            })
+            .filter(Boolean)
+            .join("\n");
+
+        } else if (typeof data === "string") {
+
+          text = data;
+
+        } else if (data && typeof data.generated_text === "string") {
+
+          text = data.generated_text;
+
+        } else if (data && typeof data.text === "string") {
+
+          text = data.text;
+
+        } else {
+
+          text = JSON.stringify(data, null, 2);
+
+        }
+
+        $("ocrOutput").value = text;
+
+        $("ocrCounter").textContent =
+          `${text.length} characters`;
+
+        $("copyOcrBtn").classList.toggle(
+          "hidden",
+          !text.trim()
+        );
+
+        showToast(
+          "Image processing completed.",
+          "success"
+        );
+
+      } catch (error) {
+
+        console.error(error);
+
+        showToast(
+          error.message || "Could not extract text from the image.",
+          "error",
+          7000
+        );
+
+      } finally {
+
+        setButtonLoading(button, false);
+
+      }
+
+    });
+
+
+    /* =========================================================
+       COPY OCR
+    ========================================================== */
+
+    $("copyOcrBtn").addEventListener("click", async () => {
+
+      const text = $("ocrOutput").value;
+
+      if (!text.trim()) return;
+
+      try {
+
+        await navigator.clipboard.writeText(text);
+
+        showToast(
+          "Extracted text copied to clipboard.",
+          "success"
+        );
+
+      } catch {
+
+        $("ocrOutput").select();
+
+        document.execCommand("copy");
+
+        showToast(
+          "Text copied.",
+          "success"
+        );
+
+      }
+
+    });
+
+
+    $("ocrOutput").addEventListener("input", () => {
+
+      $("ocrCounter").textContent =
+        `${$("ocrOutput").value.length} characters`;
+
+    });
+
+
+    /* =========================================================
+       KEYBOARD SHORTCUT
+       Ctrl/Cmd + K = API settings
+    ========================================================== */
+
+    document.addEventListener("keydown", (event) => {
+
+      if (
+        (event.ctrlKey || event.metaKey) &&
+        event.key.toLowerCase() === "k"
+      ) {
+
+        event.preventDefault();
+
+        openApiModal();
+
+      }
+
+      if (event.key === "Escape") {
+        closeApiModal();
+      }
+
+    });
+
+
+    /* =========================================================
+       INITIALIZE
+    ========================================================== */
+
+    document.addEventListener("DOMContentLoaded", () => {
+
+      updateKeyStatus();
+
+      refreshIcons();
+
+      /*
+       * Helpful initial placeholder.
+       */
+      $("ttsText").value =
+        "Hello! Welcome to our AI studio.";
+
+      $("ttsCounter").textContent =
+        `${$("ttsText").value.length} / 5000`;
+
+    });
+
+  </script>
+
+</body>
+</html>
+
